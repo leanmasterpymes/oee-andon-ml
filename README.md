@@ -116,7 +116,7 @@ oee-andon-ml/
 ├── scripts/          Utilidades CLI (cargar datos, entrenar, etc.)
 ├── docker-compose.yml
 ├── requirements.txt
-├── CLAUDE.md         Guia de trabajo + wireframe del articulo
+├── PROJECT.md        Guia de trabajo + wireframe del articulo
 └── README.md
 ```
 

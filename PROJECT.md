@@ -1,7 +1,7 @@
-# CLAUDE.md — guia interna del proyecto
+# PROJECT.md — guia interna del proyecto
 
-Este documento es la **brujula del repositorio** para cualquier sesion futura
-de trabajo (humana o asistida por IA). Incluye:
+Este documento es la **brujula del repositorio** para cualquier colaborador
+nuevo que se sume al proyecto. Incluye:
 
 1. Contexto y objetivo de negocio.
 2. Decisiones de arquitectura ya tomadas.

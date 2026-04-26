@@ -68,3 +68,6 @@ logs/
 secrets/
 *.pem
 *.key
+
+# Configuracion personal / herramientas locales (no compartir)
+.claude/
