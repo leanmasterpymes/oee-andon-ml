@@ -51,8 +51,9 @@ de trabajo (humana o asistida por IA). Incluye:
   `BREAKDOWN`, `SETUP`, `MICROSTOP`, `SLOW`, `DEFECT`, `STARTUP`. Mantener
   esta taxonomia estable en toda la app.
 - **Tiempo**: todo en UTC en la base; la UI convierte a hora local de planta.
-- **No** dejar rastros de "Generated with Claude" en commits ni en codigo
-  publico.
+- **No** dejar rastros de herramientas de asistencia (firmas tipo "generated
+  with X", co-author tags, comentarios "TODO IA") ni en commits ni en
+  codigo publico.
 
 ## 4. Wireframe del articulo
 

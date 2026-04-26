@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 460" font-family="Inter, system-ui, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+    <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#eef2f7"/>
+    </linearGradient>
+    <style>
+      .lbl { font-size:13px; fill:#0f172a; font-weight:600; }
+      .sub { font-size:11px; fill:#475569; }
+      .hdr { font-size:12px; fill:#64748b; font-weight:700; letter-spacing:1px; }
+      .box { stroke:#cbd5e1; stroke-width:1.2; }
+      rect { rx:8; ry:8; }
+    </style>
+  </defs>
+  <rect width="980" height="460" fill="url(#bg)"/>
+
+  <text x="20" y="32" class="hdr">PLANTA</text>
+  <rect x="20" y="50" width="180" height="80" fill="#fef3c7" class="box"/>
+  <text x="35" y="78" class="lbl">PLC / CNC / IoT</text>
+  <text x="35" y="98" class="sub">Siemens, Allen-Bradley,</text>
+  <text x="35" y="113" class="sub">Fanuc, sensores ESP32</text>
+
+  <rect x="20" y="170" width="180" height="80" fill="#fef3c7" class="box"/>
+  <text x="35" y="198" class="lbl">Edge Gateway</text>
+  <text x="35" y="218" class="sub">OPC UA / Modbus</text>
+  <text x="35" y="233" class="sub">→ MQTT (Sparkplug B)</text>
+
+  <text x="245" y="32" class="hdr">UNIFIED NAMESPACE</text>
+  <rect x="245" y="100" width="200" height="100" fill="#dbeafe" class="box"/>
+  <text x="265" y="135" class="lbl">Mosquitto (MQTT)</text>
+  <text x="265" y="158" class="sub">enterprise/site/area/</text>
+  <text x="265" y="173" class="sub">line/machine/{cycle,</text>
+  <text x="265" y="188" class="sub">stop, quality, state}</text>
+
+  <text x="490" y="32" class="hdr">PROCESAMIENTO</text>
+  <rect x="490" y="50" width="200" height="80" fill="#dcfce7" class="box"/>
+  <text x="505" y="78" class="lbl">Procesador OEE</text>
+  <text x="505" y="98" class="sub">FastAPI · paho-mqtt</text>
+  <text x="505" y="113" class="sub">Ventana movil A·P·Q</text>
+
+  <rect x="490" y="170" width="200" height="80" fill="#ede9fe" class="box"/>
+  <text x="505" y="198" class="lbl">Modelos ML</text>
+  <text x="505" y="218" class="sub">Isolation Forest · LightGBM</text>
+  <text x="505" y="233" class="sub">Microparadas · Causa · Forecast</text>
+
+  <rect x="490" y="290" width="200" height="80" fill="#fce7f3" class="box"/>
+  <text x="505" y="318" class="lbl">TimescaleDB</text>
+  <text x="505" y="338" class="sub">events · stops</text>
+  <text x="505" y="353" class="sub">oee_snapshots (hypertable)</text>
+
+  <text x="735" y="32" class="hdr">VISUALIZACION</text>
+  <rect x="735" y="50" width="220" height="80" fill="#cffafe" class="box"/>
+  <text x="750" y="78" class="lbl">Pantalla planta (TV)</text>
+  <text x="750" y="98" class="sub">Streamlit · refresco 5s</text>
+  <text x="750" y="113" class="sub">Tarjetas + Pareto + Tendencia</text>
+
+  <rect x="735" y="170" width="220" height="80" fill="#cffafe" class="box"/>
+  <text x="750" y="198" class="lbl">Andon mobile</text>
+  <text x="750" y="218" class="sub">Tablet del operario</text>
+  <text x="750" y="233" class="sub">Botonera + sugerencia ML</text>
+
+  <rect x="735" y="290" width="220" height="80" fill="#cffafe" class="box"/>
+  <text x="750" y="318" class="lbl">Power BI / API REST</text>
+  <text x="750" y="338" class="sub">Reportes ejecutivos</text>
+  <text x="750" y="353" class="sub">Integracion ERP</text>
+
+  <!-- flechas -->
+  <path d="M110,130 L110,170" stroke="#475569" fill="none" marker-end="url(#arr)"/>
+  <path d="M200,210 L245,150" stroke="#475569" fill="none" marker-end="url(#arr)"/>
+  <path d="M445,140 L490,90" stroke="#475569" fill="none" marker-end="url(#arr)"/>
+  <path d="M445,150 L490,210" stroke="#475569" fill="none" marker-end="url(#arr)"/>
+  <path d="M590,130 L590,170" stroke="#475569" fill="none" marker-end="url(#arr)"/>
+  <path d="M590,250 L590,290" stroke="#475569" fill="none" marker-end="url(#arr)"/>
+  <path d="M690,330 L735,90" stroke="#475569" fill="none" marker-end="url(#arr)"/>
+  <path d="M690,330 L735,210" stroke="#475569" fill="none" marker-end="url(#arr)"/>
+  <path d="M690,330 L735,330" stroke="#475569" fill="none" marker-end="url(#arr)"/>
+  <path d="M690,210 L735,210" stroke="#7c3aed" stroke-dasharray="4,3" fill="none" marker-end="url(#arr)"/>
+
+  <text x="20" y="430" class="sub">Captura automatica via OPC UA / MQTT · Datos limpios sin digitacion · ML para microparadas y causa · Forecast del cierre de turno</text>
+</svg>

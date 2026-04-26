@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 360" font-family="Inter, system-ui, sans-serif">
+  <defs>
+    <style>
+      .h { font-size:16px; font-weight:700; fill:#0f172a; }
+      .s { font-size:12px; fill:#475569; }
+      .wire { stroke:#0f172a; stroke-width:2; fill:none; }
+      .wireR { stroke:#dc2626; stroke-width:2; fill:none; }
+      .wireB { stroke:#1d4ed8; stroke-width:2; fill:none; }
+    </style>
+  </defs>
+  <rect width="800" height="360" fill="#fffbeb"/>
+  <text x="20" y="34" class="h">Retrofit IIoT de bajo costo (~USD 50)</text>
+  <text x="20" y="52" class="s">Maquina vieja sin Ethernet → ESP32 captura ciclos y los publica al broker MQTT.</text>
+
+  <!-- maquina -->
+  <rect x="40" y="100" width="190" height="180" fill="#94a3b8" rx="8"/>
+  <rect x="60" y="120" width="150" height="100" fill="#475569" rx="4"/>
+  <text x="70" y="160" fill="#fff" font-size="14" font-weight="700">Maquina</text>
+  <text x="70" y="178" fill="#cbd5e1" font-size="11">sin PLC moderno</text>
+  <circle cx="135" cy="245" r="22" fill="#fbbf24" stroke="#0f172a"/>
+  <text x="123" y="250" font-size="11" font-weight="700">SAL</text>
+
+  <!-- sensor inductivo -->
+  <rect x="290" y="160" width="100" height="60" fill="#0ea5e9" rx="6"/>
+  <text x="304" y="190" fill="#fff" font-size="12" font-weight="700">Sensor</text>
+  <text x="304" y="208" fill="#fff" font-size="11">inductivo</text>
+
+  <!-- ESP32 -->
+  <rect x="450" y="130" width="160" height="120" fill="#16a34a" rx="8"/>
+  <text x="475" y="165" fill="#fff" font-size="15" font-weight="700">ESP32</text>
+  <text x="475" y="190" fill="#fff" font-size="11">Wi-Fi + GPIO</text>
+  <text x="475" y="210" fill="#fff" font-size="11">paho-mqtt embebido</text>
+  <text x="475" y="230" fill="#fff" font-size="11">~USD 8</text>
+
+  <!-- broker -->
+  <rect x="660" y="140" width="120" height="100" fill="#7c3aed" rx="8"/>
+  <text x="680" y="180" fill="#fff" font-size="14" font-weight="700">Broker</text>
+  <text x="680" y="200" fill="#fff" font-size="11">Mosquitto</text>
+  <text x="680" y="218" fill="#fff" font-size="11">(MQTT/UNS)</text>
+
+  <!-- conexiones -->
+  <path d="M230,245 C260,245 270,190 290,190" class="wire"/>
+  <path d="M390,190 L450,190" class="wireR"/>
+  <text x="395" y="183" class="s">pulso</text>
+  <path d="M610,190 L660,190" class="wireB"/>
+  <text x="615" y="183" class="s">MQTT</text>
+
+  <text x="20" y="320" class="s">• Clamp de corriente (CT) opcional para confirmar que la maquina realmente trabaja y no esta en vacio.</text>
+  <text x="20" y="338" class="s">• Camara + YOLO si las piezas no se pueden detectar con sensor (banda libre, productos blandos, etc.).</text>
+</svg>

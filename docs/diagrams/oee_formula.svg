@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 220" font-family="Inter, system-ui, sans-serif">
+  <defs>
+    <style>
+      .ttl { font-size:18px; fill:#0f172a; font-weight:700; }
+      .num { font-size:30px; font-weight:800; fill:white; }
+      .lbl { font-size:14px; fill:white; font-weight:600; }
+      .des { font-size:12px; fill:#e2e8f0; }
+      .op  { font-size:42px; fill:#0f172a; font-weight:700; }
+    </style>
+  </defs>
+  <rect width="900" height="220" fill="#f8fafc"/>
+  <text x="20" y="40" class="ttl">OEE = Disponibilidad × Rendimiento × Calidad</text>
+
+  <rect x="20"  y="70" width="240" height="120" rx="12" fill="#0ea5e9"/>
+  <text x="40"  y="105" class="lbl">DISPONIBILIDAD</text>
+  <text x="40"  y="140" class="num">90%</text>
+  <text x="40"  y="170" class="des">Tiempo operativo / Tiempo planificado</text>
+
+  <text x="275" y="145" class="op">×</text>
+
+  <rect x="305" y="70" width="240" height="120" rx="12" fill="#7c3aed"/>
+  <text x="325" y="105" class="lbl">RENDIMIENTO</text>
+  <text x="325" y="140" class="num">95%</text>
+  <text x="325" y="170" class="des">(Ciclo ideal × piezas) / Tiempo operativo</text>
+
+  <text x="560" y="145" class="op">×</text>
+
+  <rect x="590" y="70" width="240" height="120" rx="12" fill="#16a34a"/>
+  <text x="610" y="105" class="lbl">CALIDAD</text>
+  <text x="610" y="140" class="num">99.9%</text>
+  <text x="610" y="170" class="des">Piezas buenas / Piezas totales</text>
+
+  <text x="850" y="145" class="op">=</text>
+
+  <text x="20" y="208" font-size="14" fill="#475569">Resultado world-class (Nakajima): 0.90 × 0.95 × 0.999 = <tspan font-weight="700" fill="#0f172a">85.4%</tspan> · Promedio en manufactura discreta: 55–60%.</text>
+</svg>

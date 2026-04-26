@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 620" font-family="Inter, system-ui, sans-serif">
+  <defs>
+    <style>
+      .frame { fill:#0f172a; rx:36; }
+      .screen { fill:#f8fafc; rx:24; }
+      .h { font-size:20px; font-weight:800; fill:#0f172a; }
+      .s { font-size:13px; fill:#64748b; }
+      .btn { rx:14; ry:14; }
+      .btnTxt { font-size:15px; font-weight:600; fill:#fff; }
+      .prob { font-size:13px; fill:#fef3c7; font-weight:700; }
+      .small { font-size:11px; fill:#94a3b8; }
+    </style>
+  </defs>
+  <rect x="0" y="0" width="380" height="620" class="frame"/>
+  <rect x="14" y="14" width="352" height="592" class="screen"/>
+
+  <text x="34" y="60" class="h">🚨 Andon</text>
+  <text x="34" y="82" class="s">Confirma la causa con un toque</text>
+
+  <text x="34" y="115" class="s">Maquina:</text>
+  <rect x="34" y="125" width="312" height="38" rx="8" fill="#e2e8f0"/>
+  <text x="50" y="150" font-size="14" fill="#0f172a">maquina02 · Empacadora 2</text>
+
+  <text x="34" y="190" class="s">Hora 09:42  ·  Turno M  ·  Detenida hace 02:14</text>
+
+  <text x="34" y="222" class="h" font-size="15">Causa sugerida</text>
+
+  <rect x="34" y="240" width="312" height="56" fill="#7c3aed" class="btn"/>
+  <text x="50" y="265" class="btnTxt">Microparada</text>
+  <text x="285" y="275" class="prob">62%</text>
+
+  <rect x="34" y="306" width="312" height="56" fill="#7c3aed" opacity="0.85" class="btn"/>
+  <text x="50" y="331" class="btnTxt">Cambio de formato</text>
+  <text x="285" y="341" class="prob">22%</text>
+
+  <rect x="34" y="372" width="312" height="56" fill="#7c3aed" opacity="0.7" class="btn"/>
+  <text x="50" y="397" class="btnTxt">Falla / averia</text>
+  <text x="285" y="407" class="prob">11%</text>
+
+  <text x="34" y="460" class="s">Otra causa:</text>
+  <rect x="34" y="472" width="146" height="44" rx="10" fill="#475569"/>
+  <text x="50" y="500" class="btnTxt" font-size="13">Velocidad reducida</text>
+  <rect x="200" y="472" width="146" height="44" rx="10" fill="#475569"/>
+  <text x="216" y="500" class="btnTxt" font-size="13">Defecto calidad</text>
+  <rect x="34"  y="528" width="146" height="44" rx="10" fill="#475569"/>
+  <text x="50"  y="556" class="btnTxt" font-size="13">Arranque</text>
+
+  <text x="34" y="595" class="small">Sugerencia generada por modelo LightGBM (top-3)</text>
+</svg>
