@@ -29,6 +29,7 @@ MQTT_HOST = os.getenv("MQTT_HOST", "localhost")
 MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
 N_MACHINES = int(os.getenv("N_MACHINES", "3"))
 SPEED = float(os.getenv("SIM_SPEED", "1.0"))  # 1.0 = tiempo real, 10.0 = 10x
+DURATION_S = float(os.getenv("SIM_DURATION_S", "0"))  # 0 = correr indefinido; >0 = autodetenerse
 
 CAUSES = {
     "BREAKDOWN": {"weight": 0.10, "min_s": 300, "max_s": 1800},
@@ -156,11 +157,15 @@ def main() -> None:
         t.start()
         threads.append(t)
 
-    # Espera de senial de termino
+    # Espera de senial de termino o de tiempo configurado.
     stop = threading.Event()
     signal.signal(signal.SIGTERM, lambda *_: stop.set())
     signal.signal(signal.SIGINT, lambda *_: stop.set())
-    stop.wait()
+    if DURATION_S > 0:
+        logger.info(f"Simulacion auto-detenible: {DURATION_S:.0f}s")
+        stop.wait(timeout=DURATION_S)
+    else:
+        stop.wait()
 
     logger.info("Cerrando simulador")
     client.loop_stop()

@@ -42,10 +42,14 @@ KPI en una decision (no solo un reporte).
 - **Unified Namespace** alineado a **ISA-95** sobre broker MQTT (Mosquitto).
 - **Calculo de OEE en streaming** (Disponibilidad x Rendimiento x Calidad) con
   ventana movil por turno, dia y semana.
-- **Pantalla Andon de planta** con semaforo por maquina, OEE actual vs. meta,
-  ultima parada y prediccion de cierre del turno.
-- **Andon digital movil** (tablet) con botonera tactil y **causa sugerida por
-  ML** para cerrar la parada en 2 toques.
+- **Pantalla de planta** con cabecera didactica que explica la formula OEE =
+  Disponibilidad x Rendimiento x Calidad, semaforo por maquina, Pareto de
+  causas en espanol y tendencia hora a hora.
+- **Andon digital movil** (tablet) con **semaforos clickeables** (verde / amarillo
+  / rojo) y panel contextual por estado: produccion en verde, microparadas en
+  amarillo, **causa sugerida por ML** en rojo para cerrar la parada en 2 toques.
+- **Modo demo** integrado en el Andon: un toggle fija un estado por maquina y
+  un boton lanza el simulador durante N minutos sin necesidad de terminal.
 - **4 modelos de ML integrados**:
   1. Deteccion de microparadas (Isolation Forest sobre serie de ciclos).
   2. Clasificacion de causa de parada (LightGBM sobre features contextuales).
@@ -120,6 +124,8 @@ oee-andon-ml/
 
 ## Quick start (demo en 5 minutos)
 
+### Opcion A — Docker (recomendada)
+
 Requisitos: Docker + Docker Compose.
 
 ```bash
@@ -138,6 +144,41 @@ El simulador empieza a publicar ciclos y paradas automaticamente. En 1-2
 minutos el dashboard ya muestra OEE real.
 
 Para detener: `docker compose down`. Para borrar datos: `docker compose down -v`.
+
+### Opcion B — Instalacion nativa (sin Docker)
+
+Util si Docker no esta disponible (por politicas IT, hardware limitado, edge
+device). Probada en Ubuntu 24.04 / WSL 2.
+
+```bash
+# 1) Broker, base de datos y dependencias del sistema
+sudo apt install -y mosquitto mosquitto-clients postgresql-common
+curl -s https://packagecloud.io/install/repositories/timescale/timescaledb/script.deb.sh | sudo bash
+sudo apt install -y timescaledb-2-postgresql-16 python3-venv
+
+# 2) Habilitar TimescaleDB
+echo "shared_preload_libraries = 'timescaledb'" | sudo tee -a /etc/postgresql/16/main/postgresql.conf
+sudo systemctl restart postgresql
+sudo systemctl enable --now mosquitto postgresql
+
+# 3) Base de datos y esquema
+sudo -u postgres psql -c "CREATE USER oee WITH PASSWORD 'oee';"
+sudo -u postgres psql -c "CREATE DATABASE oee OWNER oee;"
+sudo -u postgres psql -d oee -c "CREATE EXTENSION timescaledb;"
+sudo -u postgres psql -d oee < broker/init.sql
+
+# 4) Entorno Python
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+
+# 5) Levantar los 4 servicios (4 terminales)
+python simulator/main.py                                      # publica eventos al broker
+python processor/main.py                                      # consume MQTT y calcula OEE
+streamlit run dashboard/app.py --server.port 8501             # pantalla de planta
+streamlit run andon/app.py --server.port 8502                 # andon mobile
+```
+
+Detalle paso a paso en [`docs/integration.md`](docs/integration.md).
 
 ---
 
@@ -187,10 +228,12 @@ correrlos.
 ## Roadmap
 
 - [x] Estructura inicial y stack Docker
-- [ ] Simulador de 3 maquinas con paradas realistas
-- [ ] Procesador OEE en streaming + persistencia Timescale
-- [ ] Dashboard pantalla de planta (vista general + detalle)
-- [ ] Andon mobile con botonera + sugerencia ML de causa
+- [x] Simulador de 3 maquinas con paradas realistas y duracion configurable
+- [x] Procesador OEE en streaming + persistencia Timescale
+- [x] Dashboard pantalla de planta con formula OEE y Pareto en espanol
+- [x] Andon mobile con semaforos clickeables y panel contextual por estado
+- [x] Modo demo + lanzador de simulacion integrados en el Andon
+- [x] Instalacion nativa documentada (alternativa sin Docker)
 - [ ] Modelo de microparadas (Isolation Forest)
 - [ ] Modelo de clasificacion de causa (LightGBM)
 - [ ] Modelo de forecast OEE turno (Prophet + LightGBM)

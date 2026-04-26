@@ -22,6 +22,15 @@ from streamlit_autorefresh import st_autorefresh
 DB_DSN = os.getenv("DB_DSN", "postgresql+psycopg://oee:oee@localhost:5432/oee")
 TARGET_OEE = 0.85
 
+CAUSE_LABEL = {
+    "BREAKDOWN": "Averia",
+    "SETUP": "Cambio de formato",
+    "MICROSTOP": "Microparada",
+    "SLOW": "Velocidad reducida",
+    "DEFECT": "Defecto",
+    "STARTUP": "Arranque",
+}
+
 st.set_page_config(page_title="OEE en tiempo real", layout="wide", page_icon="📊")
 st_autorefresh(interval=5000, key="planta-refresh")
 
@@ -93,7 +102,7 @@ def render_card(col, machine: pd.Series, oee_row: pd.Series | None) -> None:
                 <div style="color:{c}; font-size:46px; font-weight:700; margin-top:4px;">{oee_val:.0%}</div>
                 <div style="color:#cbd5e1; font-size:13px;">Meta: {target:.0%} · Δ {(oee_val-target)*100:+.1f} pts</div>
                 <div style="margin-top:10px; color:#e2e8f0; font-size:13px;">
-                    A {a:.0%} · P {p:.0%} · Q {q:.0%}
+                    D {a:.0%} · R {p:.0%} · C {q:.0%}
                 </div>
             </div>
             """,
@@ -110,6 +119,27 @@ def header() -> None:
         turno = "Turno tarde"
     else:
         turno = "Turno noche"
+
+    st.markdown(
+        """
+        <div style="background:#0f172a; padding:18px 22px; border-radius:10px; margin-bottom:18px;
+                    border-left:6px solid #0ea5e9;">
+            <div style="color:#e2e8f0; font-size:22px; font-weight:700; margin-bottom:4px;">
+                Cálculo del OEE en tiempo real
+            </div>
+            <div style="color:#f1f5f9; font-size:30px; font-weight:600; letter-spacing:1px;
+                        font-family: 'Courier New', monospace; margin:6px 0 12px 0;">
+                OEE = Disponibilidad × Rendimiento × Calidad
+            </div>
+            <div style="display:flex; gap:24px; color:#cbd5e1; font-size:14px; flex-wrap:wrap;">
+                <div><b style="color:#38bdf8;">Disponibilidad (D)</b>: tiempo en marcha sobre tiempo planificado.</div>
+                <div><b style="color:#38bdf8;">Rendimiento (R)</b>: piezas reales sobre piezas teóricas a velocidad ideal.</div>
+                <div><b style="color:#38bdf8;">Calidad (C)</b>: piezas buenas sobre piezas totales producidas.</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     c1, c2, c3 = st.columns([3, 2, 1])
     c1.markdown("### Planta 1 — Empaque")
@@ -150,11 +180,12 @@ def main() -> None:
         st.subheader("Pareto de causas (8h)")
         pareto = get_pareto(hours=8)
         if not pareto.empty:
+            pareto["causa"] = pareto["cause"].map(CAUSE_LABEL).fillna(pareto["cause"])
             pareto["acum_pct"] = pareto["minutes"].cumsum() / pareto["minutes"].sum() * 100
             fig = go.Figure()
-            fig.add_bar(x=pareto["cause"], y=pareto["minutes"], name="Minutos",
+            fig.add_bar(x=pareto["causa"], y=pareto["minutes"], name="Minutos",
                         marker_color="#dc2626")
-            fig.add_scatter(x=pareto["cause"], y=pareto["acum_pct"], name="% acum.",
+            fig.add_scatter(x=pareto["causa"], y=pareto["acum_pct"], name="% acum.",
                             yaxis="y2", mode="lines+markers", line=dict(color="#0ea5e9"))
             fig.update_layout(
                 yaxis=dict(title="Minutos"),

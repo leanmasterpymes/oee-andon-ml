@@ -173,15 +173,35 @@ produccion (banco de imagenes, atribuir). Va arriba del titulo.
   (`docs/images/dashboard_planta.png`, capturar cuando este listo). Si
   todavia no esta, hacer un mockup en Figma / Excalidraw.
 - Layout descrito:
-  - Header: nombre de planta, turno actual, hora.
-  - Grid con una tarjeta por maquina (semaforo + OEE + meta).
-  - Panel inferior: Pareto de causas + tendencia hora a hora.
+  - Cabecera didactica con la formula `OEE = Disponibilidad x Rendimiento x
+    Calidad` y una linea explicando cada componente (D / R / C). Esto cumple
+    doble funcion: pedagogica para visitantes y de marca para el articulo.
+  - Linea de turno y hora (planta, turno actual, hora).
+  - Grid con una tarjeta por maquina (semaforo + OEE + delta vs meta + D/R/C).
+  - Panel inferior: Pareto de causas (etiquetas en espanol: Averia,
+    Microparada, Cambio de formato, etc.) + tendencia OEE hora a hora.
 - Explicar la **regla de los 5 segundos**: cualquiera que pase frente al TV
   debe entender el estado de planta en 5s.
 
 ### 4.8 El Andon en la tablet (mockup + flujo)
 
 - **Imagen** de la app movil (`docs/images/andon_tablet.png`).
+- Layout actual del Andon:
+  - Tres **semaforos clickeables** (uno por maquina) — verde "En marcha",
+    amarillo "Atencion" (microparadas frecuentes), rojo "Detenida". Click en
+    cualquiera abre el panel de detalle.
+  - **Panel contextual** segun el estado de la maquina seleccionada:
+    - Verde: KPIs de produccion del turno (OEE, piezas, calidad) y los 3
+      componentes (Disponibilidad / Rendimiento / Calidad).
+    - Amarillo: cantidad de microparadas en los ultimos 5 min, tiempo
+      perdido, OEE actual y botones rapidos para registrar la causa.
+    - Rojo: alerta + tiempo desde la ultima parada + **top-3 causas
+      sugeridas por ML** + opcion "Otra causa" en expander.
+  - **Sidebar con lanzador de simulacion**: el lector del articulo puede
+    apretar "▶ Iniciar simulacion (3 min)" y ver eventos llegar al broker
+    sin abrir terminal. Tambien hay un toggle "Modo demo" que fija
+    1 verde / 1 amarillo / 1 rojo para que la captura del articulo muestre
+    los tres estados.
 - **Diagrama de flujo** del Andon:
   ```
   Maquina detenida > 2 min  -->  Tablet alerta operario
@@ -275,20 +295,26 @@ produccion (banco de imagenes, atribuir). Va arriba del titulo.
 
 ## 5. Backlog priorizado para el MVP
 
-Orden sugerido de implementacion:
+Orden sugerido de implementacion (estado al 2026-04-26):
 
-1. **Simulador** (`simulator/`) — sin esto no se puede demostrar nada.
-2. **Esquema Timescale + procesador** (`broker/init.sql`, `processor/`) —
-   cierra el lazo de captura -> persistencia.
-3. **Dashboard pantalla** (`dashboard/`) — primer entregable visible.
-4. **Andon mobile** (`andon/`) — sin ML aun, solo botonera.
-5. **Modelo de clasificacion de causa** (`ml/notebooks/01_*.ipynb`) +
-   integracion en Andon.
-6. **Modelo de microparadas** (`ml/notebooks/02_*.ipynb`).
-7. **Modelo de forecast OEE turno** (`ml/notebooks/03_*.ipynb`).
-8. **Guia OPC UA real** (`docs/integration.md`).
-9. **Despliegue demo Streamlit Cloud**.
-10. **Articulo + post LinkedIn + cross-post blog Leanmaster Pymes**.
+1. [x] **Simulador** (`simulator/`) — eventos realistas, parametrizable por
+   `SIM_SPEED` y `SIM_DURATION_S` para autodetenerse.
+2. [x] **Esquema Timescale + procesador** (`broker/init.sql`, `processor/`)
+   — eventos crudos, paradas materializadas y snapshots de OEE por minuto.
+3. [x] **Dashboard pantalla** (`dashboard/`) — header con formula OEE y
+   componentes APQ en espanol, tarjetas D/R/C, Pareto traducido y tendencia.
+4. [x] **Andon mobile** (`andon/`) — semaforos clickeables, panel contextual
+   por estado, modo demo y lanzador de simulacion integrado.
+5. [x] **Convencion de etiquetas en espanol para la UI** (codigos internos
+   y MQTT siguen en ingles).
+6. [x] **Instalacion nativa documentada** (sin Docker) en `README.md`.
+7. [ ] **Modelo de clasificacion de causa** (`ml/notebooks/01_*.ipynb`) y
+   carga real en el Andon (hoy usa heuristica fallback).
+8. [ ] **Modelo de microparadas** (`ml/notebooks/02_*.ipynb`).
+9. [ ] **Modelo de forecast OEE turno** (`ml/notebooks/03_*.ipynb`).
+10. [ ] **Guia OPC UA real** (`docs/integration.md`).
+11. [ ] **Despliegue demo Streamlit Cloud**.
+12. [ ] **Articulo + post LinkedIn + cross-post blog Leanmaster Pymes**.
 
 ## 6. Recursos consultados
 
