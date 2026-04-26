@@ -71,3 +71,9 @@ secrets/
 
 # Configuracion personal / herramientas locales (no compartir)
 .claude/
+
+# Articulo y materiales editoriales — el lector solo los ve en LinkedIn
+docs/articulo.html
+docs/articulo_linkedin.md
+figuras/
+scripts/build_figures.py
