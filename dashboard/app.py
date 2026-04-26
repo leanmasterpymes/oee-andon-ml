@@ -39,11 +39,18 @@ CAUSE_LABEL = {
 st.set_page_config(page_title="OEE en tiempo real", layout="wide", page_icon="📊")
 st_autorefresh(interval=5000, key="planta-refresh")
 
-engine = create_engine(DB_DSN, pool_pre_ping=True)
+try:
+    engine = create_engine(DB_DSN, pool_pre_ping=True)
+except Exception:
+    # Sin driver de Postgres en el entorno (Streamlit Cloud demo): se cae a
+    # datos sinteticos, asi que no hace falta una conexion real.
+    engine = None
 
 
 @st.cache_resource
 def _db_available() -> bool:
+    if engine is None:
+        return False
     try:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))

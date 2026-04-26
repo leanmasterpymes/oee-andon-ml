@@ -1,12 +1,9 @@
-# Dependencias minimas para correr el Andon en Streamlit Community Cloud.
-# Si la BD o el broker MQTT no estan disponibles, la app cae al modo demo
-# (datos sinteticos en memoria) — ver demo_data.py en la raiz del repo.
-streamlit==1.40.0
-streamlit-autorefresh==1.0.1
-pandas==2.2.3
-numpy==2.1.3
-sqlalchemy==2.0.36
-psycopg[binary]==3.2.3
-paho-mqtt==2.1.0
-joblib==1.4.2
-scikit-learn==1.5.2
+# Dependencias minimas para Streamlit Community Cloud (Python 3.14).
+# Sin driver de Postgres ni scikit-learn: la app cae al modo demo y al
+# fallback heuristico del clasificador cuando no hay BD ni modelo entrenado.
+streamlit>=1.39
+streamlit-autorefresh
+pandas
+sqlalchemy>=2.0
+paho-mqtt
+joblib

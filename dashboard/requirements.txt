@@ -1,10 +1,8 @@
-# Dependencias minimas para correr el dashboard en Streamlit Community Cloud.
-# Si la BD TimescaleDB no esta disponible, la app cae al modulo demo_data
-# (datos sinteticos en memoria) — ver demo_data.py en la raiz del repo.
-streamlit==1.40.0
-streamlit-autorefresh==1.0.1
-plotly==5.24.1
-pandas==2.2.3
-numpy==2.1.3
-sqlalchemy==2.0.36
-psycopg[binary]==3.2.3
+# Dependencias minimas para Streamlit Community Cloud (Python 3.14).
+# La app cae al modulo demo_data automaticamente cuando no hay BD: por eso
+# NO se incluye driver de Postgres aqui, evitando problemas de compilacion.
+streamlit>=1.39
+streamlit-autorefresh
+plotly
+pandas
+sqlalchemy>=2.0
