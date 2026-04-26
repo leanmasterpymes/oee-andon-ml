@@ -1,0 +1,82 @@
+version: "3.9"
+
+# Stack minimo para correr la demo end-to-end:
+#   1) Mosquitto: broker MQTT (Unified Namespace).
+#   2) TimescaleDB: serie temporal de eventos y metricas OEE.
+#   3) Procesador: consume MQTT, calcula OEE, persiste.
+#   4) Dashboard Streamlit: vista planta + detalle por maquina.
+#   5) Andon (mobile): botonera + sugerencia ML de causa.
+#   6) Simulador: publica ciclos y paradas realistas (apagar al conectar
+#      sensores reales).
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: oee-mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./broker/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    container_name: oee-timescaledb
+    environment:
+      POSTGRES_DB: oee
+      POSTGRES_USER: oee
+      POSTGRES_PASSWORD: oee
+    ports:
+      - "5432:5432"
+    volumes:
+      - timescale_data:/var/lib/postgresql/data
+      - ./broker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  processor:
+    build: ./processor
+    container_name: oee-processor
+    depends_on:
+      - mosquitto
+      - timescaledb
+    environment:
+      MQTT_HOST: mosquitto
+      DB_DSN: postgresql+psycopg://oee:oee@timescaledb:5432/oee
+
+  dashboard:
+    build: ./dashboard
+    container_name: oee-dashboard
+    depends_on:
+      - timescaledb
+    ports:
+      - "8501:8501"
+    environment:
+      DB_DSN: postgresql+psycopg://oee:oee@timescaledb:5432/oee
+
+  andon:
+    build: ./andon
+    container_name: oee-andon
+    depends_on:
+      - mosquitto
+    ports:
+      - "8502:8501"
+    environment:
+      MQTT_HOST: mosquitto
+      MODEL_PATH: /models/cause_classifier.pkl
+    volumes:
+      - ./ml/models:/models:ro
+
+  simulator:
+    build: ./simulator
+    container_name: oee-simulator
+    depends_on:
+      - mosquitto
+    environment:
+      MQTT_HOST: mosquitto
+      N_MACHINES: 3
+
+volumes:
+  mosquitto_data:
+  mosquitto_log:
+  timescale_data:
