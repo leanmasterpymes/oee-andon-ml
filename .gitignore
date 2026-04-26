@@ -75,6 +75,9 @@ secrets/
 # Articulo y materiales editoriales — el lector solo los ve en LinkedIn
 docs/articulo.html
 docs/articulo_linkedin.md
+docs/articulo_linkedin.docx
+docs/linea_base_articulos.md
+docs/~$*
 docs/images/
 figuras/
 scripts/build_figures.py
@@ -82,3 +85,7 @@ scripts/build_microstop_chart.py
 scripts/apply_article_edits.py
 scripts/scope_svg_styles.py
 scripts/patch_microstop_in_html.py
+scripts/build_cover.py
+scripts/build_docx.py
+scripts/build_docx_clean.py
+scripts/build_figures_articulo.py

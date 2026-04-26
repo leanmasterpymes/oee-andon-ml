@@ -5,11 +5,16 @@
 > y **modelos de Machine Learning** que detectan microparadas, sugieren causas
 > y predicen el cierre del turno.
 
+[![GitHub stars](https://img.shields.io/github/stars/leanmasterpymes/oee-andon-ml?style=social)](https://github.com/leanmasterpymes/oee-andon-ml/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/leanmasterpymes/oee-andon-ml?style=social)](https://github.com/leanmasterpymes/oee-andon-ml/network/members)
+[![GitHub watchers](https://img.shields.io/github/watchers/leanmasterpymes/oee-andon-ml?style=social)](https://github.com/leanmasterpymes/oee-andon-ml/watchers)
+
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/dashboard-streamlit-ff4b4b.svg)](https://streamlit.io/)
 [![MQTT](https://img.shields.io/badge/transport-MQTT%20%2F%20Sparkplug%20B-660066.svg)](https://mqtt.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/run-docker--compose-2496ed.svg)](docker-compose.yml)
+[![Last commit](https://img.shields.io/github/last-commit/leanmasterpymes/oee-andon-ml)](https://github.com/leanmasterpymes/oee-andon-ml/commits)
 
 ---
 
@@ -22,8 +27,8 @@ Excel. El resultado llega tarde, los datos estan sesgados y las **microparadas
 
 `oee-andon-ml` propone una arquitectura abierta y de bajo costo para que
 cualquier planta capture **el OEE real**, lo vea **hora por hora y maquina
-por maquina** en una pantalla de produccion, y use **IA** para convertir el
-KPI en una decision (no solo un reporte).
+por maquina** en una pantalla de produccion, y use **modelos de Machine
+Learning** para convertir el KPI en una decision (no solo un reporte).
 
 | Lo que hay hoy en internet                  | Lo que aporta este repo                                  |
 |---------------------------------------------|----------------------------------------------------------|
@@ -126,8 +131,8 @@ oee-andon-ml/
 
 No tenes que instalar nada para verlo funcionando:
 
-- **Dashboard de planta**: https://oee-andon-ml-dashboard.streamlit.app
-- **Andon mobile**: https://oee-andon-ml-andon.streamlit.app
+- **Dashboard de planta**: https://oee-andon-ml-hmuntczgpvvhwsujeug7xp.streamlit.app/
+- **Andon mobile**: https://oee-andon-ml-mwctn8bbfk8hnave23negz.streamlit.app/
 
 Ambas apps detectan que no hay base de datos ni broker MQTT y caen
 automaticamente a un set de datos sinteticos preparado (`demo_data.py`)
