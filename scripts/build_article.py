@@ -50,10 +50,10 @@ ARTICLE_TEMPLATE = r"""<!doctype html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>De la planilla al tiempo real: medi el OEE de tu planta con MQTT, Andon digital y Machine Learning</title>
+<title>Del Excel al tiempo real: medicion automatizada del OEE con MQTT, Andon digital y Machine Learning</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Como construir un sistema abierto y de bajo costo para medir el OEE en tiempo real, con captura automatica via MQTT/OPC UA, un Andon digital y modelos de Machine Learning.">
-<meta name="author" content="Marlon Polanco — Leanmaster Pymes">
+<meta name="description" content="Arquitectura abierta y de bajo costo para medir el OEE en tiempo real mediante captura automatizada con MQTT/OPC UA, un sistema Andon digital y modelos de Machine Learning aplicados a la mejora operativa.">
+<meta name="author" content="Manuel Antonio Perez Ogando — Leanmaster Pymes">
 <style>
   :root {{
     --ink:#0f172a; --soft:#475569; --bg:#ffffff; --surface:#f8fafc;
@@ -113,70 +113,70 @@ ARTICLE_TEMPLATE = r"""<!doctype html>
 <div class="wrap">
 
 <header class="hero">
-  <div class="kicker">Industria 4.0 · Lean · Ciencia de datos</div>
-  <h1>De la planilla al tiempo real: medi el OEE de tu planta con MQTT, un Andon digital y Machine Learning</h1>
-  <p class="lede">Como pase de un Excel mensual a un dashboard hora-por-hora con IA que avisa antes de cerrar el turno. Open source, en Python, listo para copiar.</p>
-  <p class="meta">Lectura: 8–10 min · <span class="badge b-blue">Python</span> <span class="badge b-green">Open source</span> <span class="badge b-amber">PYME-friendly</span></p>
+  <div class="kicker">Industria 4.0 · Lean Manufacturing · Ciencia de datos</div>
+  <h1>Del Excel al tiempo real: medicion automatizada del OEE con MQTT, Andon digital y Machine Learning</h1>
+  <p class="lede">Una arquitectura abierta, replicable y de bajo costo para que cualquier planta industrial deje de calcular su OEE en planillas mensuales y empiece a operarlo hora por hora, con apoyo de modelos predictivos.</p>
+  <p class="meta">Lectura estimada: 8–10 minutos · <span class="badge b-blue">Python</span> <span class="badge b-green">Open source</span> <span class="badge b-amber">Orientado a PYMES</span></p>
 </header>
 
-<h2>1 · El problema que veo en casi toda planta</h2>
-<p>En la mayoria de las plantas que visito, el OEE se calcula <strong>los lunes a la mañana</strong> sobre lo que paso la semana pasada. Para entonces el problema ya costo plata, el operario olvido la mitad de las paradas y nadie puede hacer nada con el numero.</p>
-<p>El patron se repite:</p>
+<h2>1 · El problema operativo que se repite en la mayoria de las plantas</h2>
+<p>En la mayoria de las plantas industriales que he visitado, el OEE se calcula <strong>los lunes por la mañana</strong> a partir de los datos de la semana anterior. Para ese momento el problema ya genero un costo, el operario ha olvidado el detalle de la mitad de las paradas y la informacion ya no permite tomar decisiones correctivas oportunas.</p>
+<p>El patron suele ser el mismo:</p>
 <ul class="clean">
-  <li>El operario digita lo que <em>recuerda</em>.</li>
-  <li>Las microparadas — la mayor perdida oculta — <strong>nunca aparecen</strong>.</li>
-  <li>Cuando llega el reporte, ya nadie puede actuar sobre el.</li>
+  <li>El operario registra unicamente lo que <em>recuerda</em> al cierre del turno.</li>
+  <li>Las microparadas, que constituyen la mayor perdida oculta, <strong>no quedan documentadas</strong>.</li>
+  <li>El reporte llega cuando la oportunidad de mejora ya se perdio.</li>
 </ul>
-<p>Construi y abri en GitHub un sistema que ataca exactamente este problema. Te lo cuento abajo paso a paso.</p>
+<p>Para responder a esta situacion desarrolle un sistema de codigo abierto, disponible en GitHub, que aborda el problema desde la captura del dato hasta la decision en planta. A continuacion presento la propuesta y su arquitectura.</p>
 
-<h2>2 · Que es OEE y por que importa</h2>
-<p>OEE (Overall Equipment Effectiveness) es el KPI estandar de manufactura para responder una pregunta simple: <em>"de todo el tiempo que mi linea podria producir, ¿que porcentaje aproveche realmente, bien y a la velocidad correcta?"</em>.</p>
+<h2>2 · Que es el OEE y por que es relevante</h2>
+<p>El OEE (Overall Equipment Effectiveness) es el indicador estandar de manufactura para responder una pregunta concreta: <em>del tiempo total que una linea podria producir, ¿que porcentaje se aprovecha efectivamente, con la calidad esperada y a la velocidad nominal?</em></p>
 
-<figure>{svg_oee_formula}<figcaption>OEE world-class segun Nakajima: 85.4% (0.90 × 0.95 × 0.999). Promedio en manufactura discreta: 55–60%.</figcaption></figure>
+<figure>{svg_oee_formula}<figcaption>OEE de clase mundial segun Nakajima: 85.4% (0.90 × 0.95 × 0.999). Promedio observado en manufactura discreta: 55–60%.</figcaption></figure>
 
 <table>
-  <thead><tr><th>Nivel</th><th>OEE</th><th>Lectura</th></tr></thead>
+  <thead><tr><th>Nivel</th><th>OEE</th><th>Interpretacion</th></tr></thead>
   <tbody>
-    <tr><td>World class</td><td>≥ 85%</td><td>Top 10% global</td></tr>
-    <tr><td>Aceptable</td><td>60–85%</td><td>Mayoria de PYMES</td></tr>
-    <tr><td>Bajo</td><td>&lt; 60%</td><td>Hay oportunidad enorme</td></tr>
+    <tr><td>Clase mundial</td><td>≥ 85%</td><td>Top 10% de la industria a nivel global</td></tr>
+    <tr><td>Aceptable</td><td>60–85%</td><td>Rango habitual en la mayoria de las PYMES</td></tr>
+    <tr><td>Bajo</td><td>&lt; 60%</td><td>Margen significativo de mejora operativa</td></tr>
   </tbody>
 </table>
 
-<h2>3 · El verdadero problema: los datos no llegan solos</h2>
-<p>Calcular OEE es trivial. <strong>Conseguir datos limpios en tiempo real es el problema</strong>. Mientras dependamos del operario y de una planilla, el OEE va a llegar tarde, sesgado y sin las paradas chicas (que en muchas plantas representan hasta el 89% del downtime).</p>
+<h2>3 · El problema de fondo: los datos no se generan solos</h2>
+<p>Calcular el OEE es matematicamente trivial. <strong>El verdadero desafio es disponer de datos confiables en tiempo real.</strong> Mientras la captura dependa del operario y de una planilla manual, el indicador llegara tarde, sesgado y sin las paradas menores, las cuales en muchas plantas pueden representar hasta el 89% del tiempo total de inactividad.</p>
 
-<figure>{svg_manual_vs_auto}<figcaption>El salto no es en la formula, es en la captura.</figcaption></figure>
+<figure>{svg_manual_vs_auto}<figcaption>El salto cualitativo no esta en la formula, sino en el modo de captura.</figcaption></figure>
 
-<h2>4 · La arquitectura propuesta</h2>
-<p>Tres capas, todas open source y Dockerizadas:</p>
+<h2>4 · Arquitectura propuesta</h2>
+<p>La solucion se compone de tres capas, todas basadas en software libre y desplegables mediante Docker:</p>
 
-<figure>{svg_architecture}<figcaption>De PLC/sensor al dashboard. Mosquitto como Unified Namespace (UNS), TimescaleDB como historian, Streamlit como cara visible.</figcaption></figure>
+<figure>{svg_architecture}<figcaption>Del PLC o sensor hasta el tablero ejecutivo. Mosquitto opera como Unified Namespace (UNS), TimescaleDB como historian y Streamlit como capa de visualizacion.</figcaption></figure>
 
-<p><strong>Unified Namespace (UNS)</strong> en una frase: un broker MQTT donde toda la planta publica datos con tópicos jerarquicos alineados a <strong>ISA-95</strong>:</p>
+<p>El concepto de <strong>Unified Namespace (UNS)</strong> puede resumirse asi: un broker MQTT central en el que toda la planta publica datos mediante topicos jerarquicos alineados al estandar <strong>ISA-95</strong>:</p>
 
 <div class="formula">lmp/planta1/empaque/linea1/maquina01/cycle</div>
 
-<p>Cualquier app (dashboard, Andon, modelo ML, Power BI, ERP) se conecta y lee. No hay integraciones punto a punto, no hay archivos planos, no hay corte por ruta. Y si despues queres ir a una planta multi-sitio con miles de puntos, simplemente sumas <strong>Sparkplug B</strong> arriba de MQTT.</p>
+<p>Cualquier aplicacion, ya sea el dashboard de planta, el Andon, los modelos de Machine Learning, Power BI o el ERP, se conecta al broker y consume la informacion. Esto elimina las integraciones punto a punto, los archivos planos y los procesos batch. Si en el futuro la solucion se escala a un entorno multisitio con miles de puntos, basta con incorporar <strong>Sparkplug B</strong> sobre la misma capa MQTT.</p>
 
-<h2>5 · Como conectar maquinas reales (incluso las viejas)</h2>
+<h2>5 · Como conectar maquinas reales, incluso las de generaciones anteriores</h2>
 
 <table>
   <thead><tr><th>Tipo de equipo</th><th>Camino recomendado</th></tr></thead>
   <tbody>
-    <tr><td>PLC moderno (S7-1500, CompactLogix)</td><td>Cliente OPC UA → bridge a MQTT Sparkplug B</td></tr>
-    <tr><td>PLC viejo (S7-300, sin Ethernet)</td><td>Modbus TCP via gateway (Moxa / Ewon) → MQTT</td></tr>
-    <tr><td>Maquina sin PLC</td><td>ESP32 + sensor inductivo en la salida (~USD 50)</td></tr>
-    <tr><td>Banda con piezas no detectables</td><td>Camara + YOLO ligero → conteo a MQTT</td></tr>
+    <tr><td>PLC moderno (S7-1500, CompactLogix)</td><td>Cliente OPC UA con puente hacia MQTT Sparkplug B</td></tr>
+    <tr><td>PLC anterior (S7-300, sin Ethernet)</td><td>Modbus TCP a traves de un gateway (Moxa, Ewon) hacia MQTT</td></tr>
+    <tr><td>Maquina sin PLC</td><td>ESP32 con sensor inductivo en la salida (aprox. USD 50)</td></tr>
+    <tr><td>Banda con piezas dificiles de detectar</td><td>Camara con modelo YOLO ligero para conteo, publicado a MQTT</td></tr>
   </tbody>
 </table>
 
-<figure>{svg_esp32}<figcaption>Retrofit IIoT de bajo costo: sensor + ESP32 + MQTT. Sin tocar el PLC original.</figcaption></figure>
+<figure>{svg_esp32}<figcaption>Retrofit IIoT de bajo costo: sensor, microcontrolador ESP32 y MQTT, sin necesidad de modificar el PLC original.</figcaption></figure>
 
-<div class="callout"><strong>Tip:</strong> con menos de USD 50 retrofiteamos una maquina vieja y empezamos a leer ciclos automaticamente. Sin licencia, sin contrato anual, sin esperar al integrador.</div>
+<div class="callout"><strong>Recomendacion practica:</strong> con una inversion menor a USD 50 es posible retrofitear una maquina antigua y comenzar a leer ciclos de manera automatica, sin licenciamiento, sin contratos anuales y sin depender de un integrador externo.</div>
 
-<h2>6 · El calculo en streaming</h2>
-<p>El procesador escucha el broker, mantiene una <strong>ventana movil de 60 minutos</strong> por maquina y recalcula A · P · Q en cada evento. Asi se ve el corazon del motor:</p>
+<h2>6 · Calculo del OEE en streaming</h2>
+<p>El procesador se suscribe al broker, mantiene una <strong>ventana movil de 60 minutos</strong> por maquina y recalcula los tres componentes (A · P · Q) en cada evento recibido. El nucleo del motor luce de la siguiente manera:</p>
 
 <pre><code>def metrics(self, now):
     self.trim(now)
@@ -195,37 +195,37 @@ ARTICLE_TEMPLATE = r"""<!doctype html>
     return availability * performance * quality
 </code></pre>
 
-<p>Cada minuto se persiste un snapshot en TimescaleDB (hypertable de PostgreSQL). Eso permite consultas SQL estandar, integracion directa con Power BI y la posibilidad de montar dashboards o reportes a futuro sin reinventar la rueda.</p>
+<p>Cada minuto se persiste una instantanea en TimescaleDB (hypertable sobre PostgreSQL). Esto habilita consultas SQL estandar, integracion directa con Power BI y la construccion de tableros o reportes posteriores sin necesidad de duplicar la capa de datos.</p>
 
 <h2>7 · La pantalla de planta</h2>
-<p>El TV de planta esta diseñado bajo la <strong>regla de los 5 segundos</strong>: cualquiera que pase frente a la pantalla debe entender el estado de la planta en menos de 5 segundos.</p>
+<p>La pantalla principal de planta se diseña bajo la <strong>regla de los cinco segundos</strong>: cualquier persona que pase frente al televisor debe poder identificar el estado operativo de la planta en menos de cinco segundos.</p>
 
-<figure>{svg_dashboard}<figcaption>Vista TV: tarjetas con semaforo + OEE + meta + delta · tendencia 8h · Pareto de causas en vivo.</figcaption></figure>
+<figure>{svg_dashboard}<figcaption>Vista para televisor de planta: tarjetas con semaforo, OEE actual, meta y delta, tendencia de las ultimas ocho horas y diagrama de Pareto de causas en vivo.</figcaption></figure>
 
-<h2>8 · El Andon digital en la tablet</h2>
-<p>Cuando una maquina queda detenida mas de 2 minutos, una tablet en la zona de trabajo vibra. El operario ve <strong>las 3 causas mas probables</strong> sugeridas por un modelo de ML, ordenadas por probabilidad. Confirma con un toque y listo.</p>
+<h2>8 · El Andon digital sobre tablet</h2>
+<p>Cuando una maquina permanece detenida mas de dos minutos, una tablet ubicada en la zona de trabajo emite una alerta. El operario visualiza <strong>las tres causas mas probables</strong>, sugeridas por un modelo de Machine Learning y ordenadas por probabilidad. La confirmacion se realiza con un solo toque.</p>
 
 <div class="grid-2">
-  <figure>{svg_andon}<figcaption>App Andon mobile (Streamlit). El operario nunca escribe.</figcaption></figure>
-  <figure>{svg_andon_flow}<figcaption>Flujo: detectar → alertar → sugerir → confirmar → reentrenar.</figcaption></figure>
+  <figure>{svg_andon}<figcaption>Aplicacion Andon mobile desarrollada en Streamlit. El operario no requiere escribir texto.</figcaption></figure>
+  <figure>{svg_andon_flow}<figcaption>Flujo operativo: detectar, alertar, sugerir, confirmar y retroalimentar el modelo.</figcaption></figure>
 </div>
 
-<blockquote class="pull">Lo que no se mide en tiempo real, se justifica al final del turno.</blockquote>
+<blockquote class="pull">Lo que no se mide en tiempo real, se termina justificando al final del turno.</blockquote>
 
-<h2>9 · Donde entra el Machine Learning</h2>
-<p>El ML no esta ahi para vender humo. Cumple <strong>4 funciones concretas</strong>, cada una resuelve un dolor real:</p>
+<h2>9 · El rol del Machine Learning en la solucion</h2>
+<p>Los modelos de ML cumplen <strong>cuatro funciones concretas</strong> dentro del sistema; cada una responde a un problema operativo claramente identificado:</p>
 
 <table>
-  <thead><tr><th>Modelo</th><th>Algoritmo</th><th>Que aporta</th></tr></thead>
+  <thead><tr><th>Modelo</th><th>Algoritmo</th><th>Aporte operativo</th></tr></thead>
   <tbody>
-    <tr><td>Microparadas</td><td>Isolation Forest</td><td>Detecta paradas que el operario no reporta</td></tr>
-    <tr><td>Causa de parada</td><td>LightGBM</td><td>Sugiere top-3 causas → 1 toque para confirmar</td></tr>
-    <tr><td>Forecast OEE turno</td><td>Regresion + bootstrap</td><td>Avisa a media mañana como va a cerrar el turno</td></tr>
-    <tr><td>Mantenimiento predictivo</td><td>XGBoost / regresion</td><td>Anticipa fallas a partir de vibracion / corriente</td></tr>
+    <tr><td>Deteccion de microparadas</td><td>Isolation Forest</td><td>Identifica paradas no reportadas por el operario</td></tr>
+    <tr><td>Clasificacion de causas</td><td>LightGBM</td><td>Sugiere las tres causas mas probables para confirmacion en un toque</td></tr>
+    <tr><td>Pronostico de OEE de turno</td><td>Regresion con bootstrap de residuos</td><td>Anticipa el cierre del turno a media jornada</td></tr>
+    <tr><td>Mantenimiento predictivo</td><td>XGBoost o regresion</td><td>Anticipa fallas a partir de vibracion y consumo electrico</td></tr>
   </tbody>
 </table>
 
-<p>Asi se ve el clasificador de causas que alimenta el Andon (extracto):</p>
+<p>El siguiente extracto corresponde al clasificador de causas que alimenta al Andon:</p>
 
 <pre><code>features = ["machine_id", "hour", "shift", "alarm_code", "stop_duration_s"]
 model = LGBMClassifier(n_estimators=300, learning_rate=0.05, class_weight="balanced")
@@ -236,53 +236,53 @@ proba = model.predict_proba(X_new)
 top3  = sorted(zip(model.classes_, proba[0]), key=lambda p: -p[1])[:3]
 </code></pre>
 
-<p>El modelo entrenado sobre datos sinteticos realistas alcanza <strong>83% de accuracy</strong> con 100% en BREAKDOWN y &gt;90% en MICROSTOP. En produccion mejora aun mas porque cada confirmacion del operario lo reentrena.</p>
+<p>Entrenado sobre un conjunto sintetico realista, el modelo alcanza un <strong>83% de exactitud (accuracy)</strong>, con un 100% en la categoria BREAKDOWN y por encima del 90% en MICROSTOP. En produccion el desempeño mejora de manera incremental, ya que cada confirmacion del operario funciona como nuevo dato de entrenamiento.</p>
 
-<h3>Microparadas: el OEE que nadie te muestra</h3>
-<p>Las microparadas — esos 30/60/90 segundos sin pieza que nadie reporta — son la mayor perdida oculta de OEE en planta. Un Isolation Forest sobre la serie de gaps entre ciclos las marca solo:</p>
+<h3>Microparadas: la perdida que rara vez aparece en los reportes</h3>
+<p>Las microparadas, esos intervalos de 30 a 90 segundos sin produccion que el operario no suele documentar, constituyen la mayor perdida oculta de OEE en planta. Un modelo de Isolation Forest aplicado sobre la serie de tiempos entre ciclos las identifica de manera automatica:</p>
 
-<figure><img alt="Histograma de gaps entre ciclos con la zona anomala marcada en rojo" src="data:image/png;base64,{png_microstop}"><figcaption>Cualquier gap fuera del patron normal se marca como microparada y se incluye en el OEE real, sin requerir intervencion del operario.</figcaption></figure>
+<figure><img alt="Histograma de tiempos entre ciclos con la zona anomala marcada en rojo" src="data:image/png;base64,{png_microstop}"><figcaption>Todo intervalo que se aleje del patron normal se clasifica como microparada y se incorpora al OEE real, sin requerir intervencion humana.</figcaption></figure>
 
-<h3>Forecast del cierre del turno</h3>
-<p>A media mañana, el modelo proyecta como va a terminar el turno con una banda de incertidumbre del 95%. Eso convierte un KPI <em>post-mortem</em> en una alerta accionable:</p>
+<h3>Pronostico del cierre del turno</h3>
+<p>A mitad de jornada, el modelo proyecta el cierre del turno con una banda de incertidumbre del 95%. De este modo, un KPI tradicionalmente <em>post-mortem</em> se transforma en una alerta accionable:</p>
 
-<figure><img alt="OEE observado y forecast hasta el final del turno con banda de incertidumbre" src="data:image/png;base64,{png_forecast}"><figcaption>"Si nada cambia, vas a cerrar en 78%. Para llegar a la meta necesitas recuperar 8 piezas/hora a partir de ahora."</figcaption></figure>
+<figure><img alt="OEE observado y pronostico hasta el final del turno con banda de incertidumbre" src="data:image/png;base64,{png_forecast}"><figcaption>"De mantenerse las condiciones actuales, el turno cerrara en 78%. Para alcanzar la meta es necesario recuperar 8 piezas adicionales por hora."</figcaption></figure>
 
-<h2>10 · Resultados esperados</h2>
-<p>Numeros tipicos del sector cuando esta arquitectura entra bien implementada (citados por HiveMQ, EMQ, TEEPTRAK y casos publicados):</p>
+<h2>10 · Resultados esperables</h2>
+<p>Las cifras siguientes corresponden a referencias publicas del sector (HiveMQ, EMQ, TEEPTRAK y casos documentados) cuando la arquitectura se implementa con disciplina:</p>
 <ul class="clean">
-  <li><strong>15–25% de mejora promedio de OEE</strong> tras conectividad OPC UA / MQTT bien hecha.</li>
-  <li><strong>60% de reduccion del tiempo de respuesta</strong> a paradas con Andon digital.</li>
-  <li><strong>2–3 causas concentran el 70–89%</strong> del downtime (Pareto), por lo que enfocar mejora ahi rinde mucho mas.</li>
-  <li>Las microparadas suelen representar <strong>el mayor componente perdido</strong> de Performance, y solo se ven con captura automatica.</li>
+  <li><strong>Mejora promedio de OEE entre 15% y 25%</strong> luego de implementar conectividad OPC UA / MQTT correctamente.</li>
+  <li><strong>Reduccion del tiempo de respuesta a paradas cercana al 60%</strong> con la incorporacion del Andon digital.</li>
+  <li><strong>Dos o tres causas concentran entre el 70% y el 89%</strong> del tiempo de inactividad (Pareto), por lo que focalizar alli las acciones de mejora ofrece el mayor retorno.</li>
+  <li>Las microparadas suelen ser <strong>el mayor componente de perdida en el factor Rendimiento</strong>, y solo se hacen visibles con captura automatizada.</li>
 </ul>
 
-<h2>11 · Como probarlo (5 minutos)</h2>
-<p>Todo el codigo esta abierto en GitHub bajo licencia MIT. Solo necesitas Docker:</p>
+<h2>11 · Como probar el sistema (cinco minutos)</h2>
+<p>El codigo completo esta publicado en GitHub bajo licencia MIT. El unico requisito es disponer de Docker:</p>
 <pre><code>git clone https://github.com/leanmasterpymes/oee-andon-ml
 cd oee-andon-ml
 docker compose up -d
 </code></pre>
-<p>Despues abris:</p>
+<p>Una vez levantado el stack, los puntos de acceso son:</p>
 <ul class="clean">
   <li><strong>Pantalla de planta:</strong> <code>http://localhost:8501</code></li>
   <li><strong>Andon mobile:</strong> <code>http://localhost:8502</code></li>
   <li><strong>Broker MQTT:</strong> <code>localhost:1883</code></li>
 </ul>
-<p>El simulador empieza a publicar datos de 3 maquinas inmediatamente. En menos de 2 minutos ya tenes OEE en pantalla.</p>
+<p>El simulador comienza a publicar datos de tres maquinas de manera inmediata; en menos de dos minutos el OEE ya se visualiza en pantalla.</p>
 
 <div class="cta">
-  <h2>Si te resulto util</h2>
-  <p>⭐ Estrellame el repo en GitHub. Le hace mas visible al resto.<br>
-  💬 Compartilo con tu jefe de produccion o de mantenimiento — esto se prueba en una tarde.<br>
-  📩 Si queres llevarlo a tu planta y necesitas ayuda para integrarlo a tus PLC, mandame DM.</p>
+  <h2>Si este contenido le resulto util</h2>
+  <p>⭐ Marque el repositorio en GitHub para darle visibilidad.<br>
+  💬 Comparta el articulo con su responsable de produccion o de mantenimiento; el sistema puede evaluarse en una sola jornada.<br>
+  📩 Si desea adaptar la solucion a su planta o integrarla a sus PLC, esta abierto el canal de mensajes directos.</p>
 </div>
 
 <footer class="byline">
   <div>
-    <strong>Marlon Polanco</strong> — Ingeniero industrial, MSc Gestion Estrategica de Software · Profesor de Investigacion de Operaciones · Especialista en procesos · Power BI certified.
+    <strong>Manuel Antonio Perez Ogando</strong> — Ingeniero industrial, MSc en Gestion Estrategica para el Desarrollo de Software · Profesor de Investigacion de Operaciones · Especialista en mapeo, analisis y mejora de procesos · Certificado en Power BI.
   </div>
-  <div>Leanmaster Pymes · Articulo de la serie semanal de ciencia de datos para productividad empresarial.</div>
+  <div>Leanmaster Pymes · Entrega de la serie semanal sobre ciencia de datos aplicada a la productividad empresarial.</div>
 </footer>
 
 </div>

@@ -14,7 +14,7 @@ de trabajo (humana o asistida por IA). Incluye:
 
 ## 1. Contexto
 
-- **Autor**: Marlon Polanco (Leanmaster Pymes). Ingeniero industrial,
+- **Autor**: Manuel Antonio Perez Ogando (Leanmaster Pymes). Ingeniero industrial,
   maestria en gestion estrategica para el desarrollo de software, certificado
   Power BI, profesor de Investigacion de Operaciones, especialista en
   procesos.
