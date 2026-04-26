@@ -25,6 +25,9 @@ from streamlit_autorefresh import st_autorefresh
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+import demo_data  # noqa: E402
+
 MQTT_HOST = os.getenv("MQTT_HOST", "localhost")
 MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
 DB_DSN = os.getenv("DB_DSN", "postgresql+psycopg://oee:oee@localhost:5432/oee")
@@ -75,6 +78,24 @@ engine = create_engine(DB_DSN, pool_pre_ping=True)
 
 
 @st.cache_resource
+def _db_available() -> bool:
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return True
+    except Exception:
+        return False
+
+
+def _force_demo() -> bool:
+    return os.getenv("DEMO_MODE", "").lower() in ("1", "true", "yes")
+
+
+def is_demo_mode() -> bool:
+    return _force_demo() or not _db_available()
+
+
+@st.cache_resource
 def load_model():
     if MODEL_PATH.exists():
         try:
@@ -86,11 +107,15 @@ def load_model():
 
 @st.cache_data(ttl=4)
 def get_machines() -> pd.DataFrame:
+    if is_demo_mode():
+        return demo_data.get_machines()
     return pd.read_sql("SELECT * FROM machines ORDER BY machine_id", engine)
 
 
 @st.cache_data(ttl=4)
 def get_last_state() -> pd.DataFrame:
+    if is_demo_mode():
+        return demo_data.get_last_state()
     q = text("""
         SELECT DISTINCT ON (machine_id)
             machine_id, ts, payload->>'state' AS state
@@ -103,6 +128,8 @@ def get_last_state() -> pd.DataFrame:
 
 @st.cache_data(ttl=4)
 def get_recent_stops(minutes: int = 5) -> pd.DataFrame:
+    if is_demo_mode():
+        return demo_data.get_recent_stops(minutes)
     q = text("""
         SELECT machine_id, cause, COUNT(*) AS cnt, SUM(duration_s) AS total_s
         FROM stops
@@ -114,6 +141,8 @@ def get_recent_stops(minutes: int = 5) -> pd.DataFrame:
 
 @st.cache_data(ttl=4)
 def get_latest_oee() -> pd.DataFrame:
+    if is_demo_mode():
+        return demo_data.get_latest_oee()
     q = text("""
         SELECT DISTINCT ON (machine_id)
             machine_id, ts, availability, performance, quality, oee, pieces_total, pieces_good
@@ -125,6 +154,8 @@ def get_latest_oee() -> pd.DataFrame:
 
 @st.cache_data(ttl=4)
 def get_active_stop(machine_id: str) -> pd.DataFrame:
+    if is_demo_mode():
+        return demo_data.get_active_stop(machine_id)
     q = text("""
         SELECT cause, ts, duration_s
         FROM stops
@@ -205,6 +236,7 @@ def suggest_causes(machine_id: str, hour: int, shift: str) -> list[tuple[str, fl
 
 
 def publish_stop(machine_id: str, cause: str) -> None:
+    """Publica al broker MQTT. En entornos sin broker (Streamlit Cloud) ignora silenciosamente."""
     payload = {
         "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z"),
         "cause": cause,
@@ -213,7 +245,11 @@ def publish_stop(machine_id: str, cause: str) -> None:
         "detected_by": "operator_andon",
     }
     topic = f"lmp/planta1/empaque/linea1/{machine_id}/stop"
-    mqtt_publish.single(topic, json.dumps(payload), hostname=MQTT_HOST, port=MQTT_PORT)
+    try:
+        mqtt_publish.single(topic, json.dumps(payload), hostname=MQTT_HOST, port=MQTT_PORT)
+    except Exception:
+        # Sin broker (entorno demo en cloud): el evento se registra solo en memoria/UI.
+        pass
 
 
 def panel_verde(machine: pd.Series, oee_row) -> None:
@@ -347,23 +383,32 @@ def render_sidebar() -> bool:
         demo_mode = st.toggle("Modo demo (1 verde · 1 amarillo · 1 rojo)", value=True,
                               help="Util para capturas. Apagado, usa el estado real de las maquinas.")
 
-        st.markdown("---")
-        st.markdown("### Simulacion")
-        st.caption("Lanza eventos de planta al broker durante el tiempo elegido. Util para probar la app sin sensores reales.")
+        # El lanzador de simulacion solo aparece si hay broker MQTT y BD locales
+        # (es decir, no en Streamlit Cloud). En cloud queda oculto.
+        if not is_demo_mode():
+            st.markdown("---")
+            st.markdown("### Simulacion")
+            st.caption("Lanza eventos de planta al broker durante el tiempo elegido. Util para probar la app sin sensores reales.")
 
-        if sim_is_alive():
-            remaining = max(0, int(st.session_state.get("sim_until", 0) - time.time()))
-            mm, ss = divmod(remaining, 60)
-            st.success(f"▶ Simulacion corriendo — quedan {mm:02d}:{ss:02d}")
-            if st.button("⏹ Detener simulacion", use_container_width=True):
-                stop_simulation()
-                st.rerun()
+            if sim_is_alive():
+                remaining = max(0, int(st.session_state.get("sim_until", 0) - time.time()))
+                mm, ss = divmod(remaining, 60)
+                st.success(f"▶ Simulacion corriendo — quedan {mm:02d}:{ss:02d}")
+                if st.button("⏹ Detener simulacion", use_container_width=True):
+                    stop_simulation()
+                    st.rerun()
+            else:
+                minutes = st.selectbox("Duracion", [1, 3, 5, 10], index=1,
+                                       format_func=lambda x: f"{x} min")
+                if st.button("▶ Iniciar simulacion", use_container_width=True, type="primary"):
+                    start_simulation(minutes)
+                    st.rerun()
         else:
-            minutes = st.selectbox("Duracion", [1, 3, 5, 10], index=1,
-                                   format_func=lambda x: f"{x} min")
-            if st.button("▶ Iniciar simulacion", use_container_width=True, type="primary"):
-                start_simulation(minutes)
-                st.rerun()
+            st.markdown("---")
+            st.info(
+                "Estas en la **demo publica**. Los datos son sinteticos para que puedas "
+                "probar la interfaz sin conectarte a una planta real."
+            )
 
     return demo_mode
 

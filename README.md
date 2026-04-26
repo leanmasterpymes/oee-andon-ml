@@ -122,6 +122,21 @@ oee-andon-ml/
 
 ---
 
+## Demo en vivo
+
+No tenes que instalar nada para verlo funcionando:
+
+- **Dashboard de planta**: https://oee-andon-ml-dashboard.streamlit.app
+- **Andon mobile**: https://oee-andon-ml-andon.streamlit.app
+
+Ambas apps detectan que no hay base de datos ni broker MQTT y caen
+automaticamente a un set de datos sinteticos preparado (`demo_data.py`)
+para que el visitante vea las pantallas con OEE, Pareto y semaforos
+realistas. Cuando clones el repo y corras local con tu propia BD, las
+apps se conectan a TimescaleDB y muestran datos reales.
+
+---
+
 ## Quick start (demo en 5 minutos)
 
 ### Opcion A — Docker (recomendada)
@@ -179,6 +194,27 @@ streamlit run andon/app.py --server.port 8502                 # andon mobile
 ```
 
 Detalle paso a paso en [`docs/integration.md`](docs/integration.md).
+
+### Opcion C — Deploy publico en Streamlit Community Cloud
+
+Los archivos `dashboard/requirements.txt` y `andon/requirements.txt` ya estan
+preparados con el subconjunto minimo de dependencias que usa cada app.
+
+1. Crea cuenta gratis en https://share.streamlit.io con tu cuenta de Github.
+2. **New app** -> selecciona este repo -> rama `main` -> archivo principal
+   `dashboard/app.py`. Deploy.
+3. Repeti para el Andon: archivo principal `andon/app.py`.
+4. Listo: las apps detectan que no hay BD ni broker y caen al modulo
+   `demo_data.py` para mostrar datos sinteticos a los visitantes.
+
+Si mas adelante queres conectar Streamlit Cloud a una base real, en la
+configuracion de la app **Settings -> Secrets** agrega:
+
+```toml
+DB_DSN = "postgresql+psycopg://USER:PASS@HOST:PORT/oee"
+```
+
+(Postgres gestionado: Neon, Supabase, Aiven o Timescale Cloud).
 
 ---
 

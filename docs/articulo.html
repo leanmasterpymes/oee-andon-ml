@@ -71,6 +71,17 @@
   <p class="meta">Lectura estimada: 8–10 minutos · <span class="badge b-blue">Python</span> <span class="badge b-green">Open source</span> <span class="badge b-amber">Orientado a PYMES</span></p>
 </header>
 
+<div style="background:linear-gradient(135deg,#0ea5e9 0%,#7c3aed 100%); color:#fff; padding:22px 26px; border-radius:12px; margin: 4px 0 32px;">
+  <div style="font-size:13px; letter-spacing:1.5px; text-transform:uppercase; opacity:0.9; font-weight:700;">Demo en vivo · sin instalación</div>
+  <div style="font-size:18px; font-weight:600; margin:6px 0 10px;">Antes de leer, abrí el sistema funcionando en tu navegador:</div>
+  <ul style="margin:0; padding-left:20px; line-height:1.9;">
+    <li><a style="color:#fff; border-bottom:1px solid rgba(255,255,255,0.6);" href="https://oee-andon-ml-dashboard.streamlit.app" target="_blank">Pantalla de planta (dashboard)</a> — OEE hora a hora, semáforo por máquina, Pareto y tendencia.</li>
+    <li><a style="color:#fff; border-bottom:1px solid rgba(255,255,255,0.6);" href="https://oee-andon-ml-andon.streamlit.app" target="_blank">Andon móvil (tablet del operario)</a> — tres semáforos clickeables y registro de causa con un toque.</li>
+    <li><a style="color:#fff; border-bottom:1px solid rgba(255,255,255,0.6);" href="https://github.com/leanmasterpymes/oee-andon-ml" target="_blank">Repositorio en GitHub</a> — clonalo y corré el stack completo en tu computadora con un solo comando.</li>
+  </ul>
+  <div style="font-size:13px; opacity:0.9; margin-top:10px;">Las dos apps detectan que no hay base de datos conectada y muestran datos sintéticos representativos. Cuando lo levantás local, se conectan a tu propia planta.</div>
+</div>
+
 <h2>1 · El problema operativo que se repite en la mayoría de las plantas</h2>
 <p>En la mayoría de las plantas industriales que he visitado, el OEE se calcula <strong>los lunes por la mañana</strong> a partir de los datos de la semana anterior. Para ese momento el problema ya generó un costo, el operario ha olvidado el detalle de la mitad de las paradas y la información ya no permite tomar decisiones correctivas oportunas.</p>
 <p>El patrón suele ser el mismo:</p>
@@ -257,11 +268,10 @@
   <text x="20" y="430" class="sub">Captura automatica via OPC UA / MQTT · Datos limpios sin digitacion · ML para microparadas y causa · Forecast del cierre de turno</text>
 </svg><figcaption>Del PLC o sensor hasta el tablero ejecutivo. Mosquitto opera como Unified Namespace (UNS), TimescaleDB como <em>historian</em> y Streamlit como capa de visualización.</figcaption></figure>
 
-<p>El concepto de <strong>Unified Namespace (UNS)</strong> puede resumirse así: un broker MQTT central en el que toda la planta publica datos mediante tópicos jerárquicos alineados al estándar <strong>ISA-95</strong>:</p>
+<h3>¿Qué es MQTT y por qué es la columna vertebral?</h3>
+<p><strong>MQTT</strong> (<em>Message Queuing Telemetry Transport</em>) es el protocolo de mensajería estándar de la Industria 4.0. Un servidor central llamado <strong>broker</strong> recibe lo que publican las máquinas y lo reparte a todas las aplicaciones que necesitan esa información. Productor y consumidor no se conocen entre sí: el broker desacopla a ambos. Frente a HTTP, MQTT mantiene una conexión persistente, su sobrecarga es de apenas dos bytes por mensaje y entrega los eventos en milisegundos, características que lo hacen ideal para sensores con poco ancho de banda y comunicaciones de planta.</p>
 
-<div class="formula">lmp/planta1/empaque/linea1/maquina01/cycle</div>
-
-<p>Cualquier aplicación, ya sea el tablero de planta, el Andon, los modelos de Machine Learning, Power BI o el ERP, se conecta al broker y consume la información. Esto elimina las integraciones punto a punto, los archivos planos y los procesos por lotes. Si en el futuro la solución escala a un entorno multisitio con miles de puntos, basta con incorporar <strong>Sparkplug B</strong> sobre la misma capa MQTT.</p>
+<p>El concepto de <strong>Unified Namespace (UNS)</strong> puede resumirse así: un único broker MQTT en el que toda la planta publica datos con tópicos jerárquicos alineados al estándar <strong>ISA-95</strong>, por ejemplo <code>lmp/planta1/empaque/linea1/maquina01/cycle</code>. Cualquier aplicación, ya sea el tablero de planta, el Andon, los modelos de Machine Learning, Power BI o el ERP, se suscribe al broker y consume la información. Se eliminan las integraciones punto a punto, los archivos planos y los procesos por lotes. Si la solución escala a un entorno multisitio con miles de puntos, se incorpora <strong>Sparkplug B</strong> sobre la misma capa MQTT.</p>
 
 <h2>5 · Cómo conectar máquinas reales, incluso las de generaciones anteriores</h2>
 
@@ -351,7 +361,14 @@
 <p>Cada minuto se persiste una instantánea en TimescaleDB (<em>hypertable</em> sobre PostgreSQL). Esto habilita consultas SQL estándar, integración directa con Power BI y la construcción de tableros o reportes posteriores sin necesidad de duplicar la capa de datos.</p>
 
 <h2>7 · La pantalla de planta</h2>
-<p>La pantalla principal de planta se diseña bajo la <strong>regla de los cinco segundos</strong>: cualquier persona que pase frente al televisor debe poder identificar el estado operativo de la planta en menos de cinco segundos.</p>
+<p>La pantalla principal de planta se diseña bajo la <strong>regla de los cinco segundos</strong>: cualquier persona que pase frente al televisor debe poder identificar el estado operativo de la planta en menos de cinco segundos. Encabeza la vista la fórmula del OEE con sus tres componentes en español, de modo que cualquier visitante a la planta entienda en un solo vistazo qué se está midiendo.</p>
+
+<figure>
+  <img alt="Captura del dashboard de planta con la fórmula del OEE, tarjetas por máquina, tendencia de las últimas 8 horas y Pareto de causas." src="images/dashboard_planta.png">
+  <figcaption>Pantalla de planta en producción — desplegada en Streamlit Cloud, refresco cada 5 segundos. <a href="https://oee-andon-ml-dashboard.streamlit.app" target="_blank">Probarla aquí</a>.</figcaption>
+</figure>
+
+<p>El siguiente esquema muestra el layout que adopta la pantalla, útil cuando se planifica el montaje en un televisor de planta:</p>
 
 <figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 620" font-family="Inter, system-ui, sans-serif">
   <defs>
@@ -439,7 +456,14 @@
 </svg><figcaption>Vista para televisor de planta: tarjetas con semáforo, OEE actual, meta y delta, tendencia de las últimas ocho horas y diagrama de Pareto de causas en vivo.</figcaption></figure>
 
 <h2>8 · El Andon digital sobre <em>tablet</em></h2>
-<p>Cuando una máquina permanece detenida más de dos minutos, una <em>tablet</em> ubicada en la zona de trabajo emite una alerta. El operario visualiza <strong>las tres causas más probables</strong>, sugeridas por un modelo de Machine Learning y ordenadas por probabilidad. La confirmación se realiza con un solo toque.</p>
+<p>El Andon móvil presenta a la línea de producción como tres semáforos de gran tamaño: verde cuando la máquina opera con normalidad, amarillo cuando aparecen microparadas frecuentes, rojo cuando la máquina queda detenida. El operario toca cualquiera para abrir el detalle: en verde ve los KPIs de producción, en amarillo el conteo de microparadas y en rojo <strong>las tres causas más probables</strong>, sugeridas por un modelo de Machine Learning. La confirmación se realiza con un solo toque, sin escribir texto.</p>
+
+<figure>
+  <img alt="Captura del Andon móvil mostrando tres semáforos (verde, amarillo, rojo) y el panel de causa para la máquina detenida." src="images/andon_tablet.png">
+  <figcaption>Andon en producción con los tres estados visibles. <a href="https://oee-andon-ml-andon.streamlit.app" target="_blank">Probarlo aquí</a>.</figcaption>
+</figure>
+
+<p>El esquema de abajo muestra a la izquierda el detalle del flujo de causa cuando una máquina entra en rojo, y a la derecha el ciclo completo de detección, sugerencia, confirmación y reentrenamiento del modelo.</p>
 
 <div class="grid-2">
   <figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 620" font-family="Inter, system-ui, sans-serif">
@@ -587,25 +611,29 @@ top3  = sorted(zip(model.classes_, proba[0]), key=lambda p: -p[1])[:3]
   <li>Las microparadas suelen ser <strong>el mayor componente de pérdida en el factor Rendimiento</strong>, y solo se hacen visibles con captura automatizada.</li>
 </ul>
 
-<h2>11 · Cómo probar el sistema (cinco minutos)</h2>
-<p>El código completo está publicado en GitHub bajo licencia MIT. El único requisito es disponer de Docker:</p>
+<h2>11 · Cómo probar el sistema</h2>
+
+<h3>Opción rápida: la demo pública</h3>
+<p>No es necesario instalar nada para conocer la solución. Las dos aplicaciones están publicadas en Streamlit Community Cloud con datos sintéticos representativos:</p>
+<ul class="clean">
+  <li><strong>Dashboard de planta:</strong> <a href="https://oee-andon-ml-dashboard.streamlit.app" target="_blank">oee-andon-ml-dashboard.streamlit.app</a></li>
+  <li><strong>Andon móvil:</strong> <a href="https://oee-andon-ml-andon.streamlit.app" target="_blank">oee-andon-ml-andon.streamlit.app</a></li>
+</ul>
+
+<h3>Opción para implementarlo: clonar el repositorio</h3>
+<p>El código completo está publicado en GitHub bajo licencia MIT en <a href="https://github.com/leanmasterpymes/oee-andon-ml" target="_blank">github.com/leanmasterpymes/oee-andon-ml</a>. Cualquiera puede clonarlo, correr el <em>stack</em> en su computadora y conectar máquinas reales. La vía recomendada usa Docker:</p>
 <pre><code>git clone https://github.com/leanmasterpymes/oee-andon-ml
 cd oee-andon-ml
 docker compose up -d
 </code></pre>
-<p>Una vez levantado el <em>stack</em>, los puntos de acceso son:</p>
-<ul class="clean">
-  <li><strong>Pantalla de planta:</strong> <code>http://localhost:8501</code></li>
-  <li><strong>Andon móvil:</strong> <code>http://localhost:8502</code></li>
-  <li><strong>Broker MQTT:</strong> <code>localhost:1883</code></li>
-</ul>
-<p>El simulador comienza a publicar datos de tres máquinas de manera inmediata; en menos de dos minutos el OEE ya se visualiza en pantalla.</p>
+<p>Una vez levantado, los puntos de acceso locales son <code>http://localhost:8501</code> (pantalla de planta), <code>http://localhost:8502</code> (Andon) y <code>localhost:1883</code> (broker MQTT). El simulador comienza a publicar datos de tres máquinas de manera inmediata; en menos de dos minutos el OEE ya se visualiza en pantalla. Para entornos donde Docker no está disponible, el README del repositorio documenta una <em>opción B</em> con instalación nativa sobre Ubuntu / WSL.</p>
 
 <div class="cta">
   <h2>Si este contenido le resultó útil</h2>
-  <p>⭐ Marque el repositorio en GitHub para darle visibilidad.<br>
-  💬 Comparta el artículo con su responsable de producción o de mantenimiento; el sistema puede evaluarse en una sola jornada.<br>
-  📩 Si desea adaptar la solución a su planta o integrarla a sus PLC, está abierto el canal de mensajes directos.</p>
+  <p>👀 <a href="https://oee-andon-ml-dashboard.streamlit.app" target="_blank">Probá el dashboard</a> y <a href="https://oee-andon-ml-andon.streamlit.app" target="_blank">el Andon</a> antes de cerrar la pestaña — los dos están en línea con datos sintéticos representativos.<br>
+  ⭐ <a href="https://github.com/leanmasterpymes/oee-andon-ml" target="_blank">Marcá el repositorio en GitHub</a> para darle visibilidad y poder clonarlo en tu propia planta.<br>
+  💬 Compartí el artículo con tu responsable de producción o de mantenimiento; el sistema puede evaluarse en una sola jornada.<br>
+  📩 Si querés adaptar la solución a tu planta o integrarla a tus PLC, está abierto el canal de mensajes directos.</p>
 </div>
 
 <footer class="byline">

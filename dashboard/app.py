@@ -9,7 +9,9 @@ Refresco cada 5s. Muestra:
 from __future__ import annotations
 
 import os
+import sys
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import pandas as pd
 import plotly.express as px
@@ -17,6 +19,9 @@ import plotly.graph_objects as go
 import streamlit as st
 from sqlalchemy import create_engine, text
 from streamlit_autorefresh import st_autorefresh
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import demo_data  # noqa: E402
 
 
 DB_DSN = os.getenv("DB_DSN", "postgresql+psycopg://oee:oee@localhost:5432/oee")
@@ -37,13 +42,35 @@ st_autorefresh(interval=5000, key="planta-refresh")
 engine = create_engine(DB_DSN, pool_pre_ping=True)
 
 
+@st.cache_resource
+def _db_available() -> bool:
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return True
+    except Exception:
+        return False
+
+
+def _force_demo() -> bool:
+    return os.getenv("DEMO_MODE", "").lower() in ("1", "true", "yes")
+
+
+def is_demo_mode() -> bool:
+    return _force_demo() or not _db_available()
+
+
 @st.cache_data(ttl=4)
 def get_machines() -> pd.DataFrame:
+    if is_demo_mode():
+        return demo_data.get_machines()
     return pd.read_sql("SELECT * FROM machines ORDER BY machine_id", engine)
 
 
 @st.cache_data(ttl=4)
 def get_latest_oee() -> pd.DataFrame:
+    if is_demo_mode():
+        return demo_data.get_latest_oee()
     q = text("""
         SELECT DISTINCT ON (machine_id)
             machine_id, ts, availability, performance, quality, oee, pieces_total, pieces_good
@@ -55,6 +82,8 @@ def get_latest_oee() -> pd.DataFrame:
 
 @st.cache_data(ttl=4)
 def get_oee_trend(hours: int = 8) -> pd.DataFrame:
+    if is_demo_mode():
+        return demo_data.get_oee_trend(hours)
     q = text("""
         SELECT ts, machine_id, oee
         FROM oee_snapshots
@@ -66,6 +95,8 @@ def get_oee_trend(hours: int = 8) -> pd.DataFrame:
 
 @st.cache_data(ttl=4)
 def get_pareto(hours: int = 8) -> pd.DataFrame:
+    if is_demo_mode():
+        return demo_data.get_pareto(hours)
     q = text("""
         SELECT cause, COUNT(*) AS events, SUM(duration_s)/60 AS minutes
         FROM stops
@@ -120,12 +151,19 @@ def header() -> None:
     else:
         turno = "Turno noche"
 
+    demo_badge = ""
+    if is_demo_mode():
+        demo_badge = (
+            '<span style="background:#1d4ed8; color:white; font-size:11px; font-weight:600; '
+            'padding:3px 9px; border-radius:99px; margin-left:8px; vertical-align:middle;">DEMO</span>'
+        )
+
     st.markdown(
-        """
+        f"""
         <div style="background:#0f172a; padding:18px 22px; border-radius:10px; margin-bottom:18px;
                     border-left:6px solid #0ea5e9;">
             <div style="color:#e2e8f0; font-size:22px; font-weight:700; margin-bottom:4px;">
-                Cálculo del OEE en tiempo real
+                Cálculo del OEE en tiempo real{demo_badge}
             </div>
             <div style="color:#f1f5f9; font-size:30px; font-weight:600; letter-spacing:1px;
                         font-family: 'Courier New', monospace; margin:6px 0 12px 0;">
