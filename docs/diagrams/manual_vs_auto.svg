@@ -28,7 +28,7 @@
   <text x="540" y="100" class="g">PLC / sensor ESP32 → MQTT</text>
   <text x="480" y="140" class="icn">⚡</text>
   <text x="540" y="140" class="g">OEE recalculado segundo a segundo</text>
-  <text x="480" y="180" class="icn">🤖</text>
+  <text x="480" y="180" class="icn">🔍</text>
   <text x="540" y="180" class="g">ML detecta microparadas no reportadas</text>
   <text x="480" y="220" class="icn">📲</text>
   <text x="540" y="220" class="g">Andon sugiere causa, operario solo confirma</text>
